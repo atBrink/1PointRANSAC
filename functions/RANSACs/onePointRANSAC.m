@@ -1,5 +1,5 @@
-function [optimalPose, optimalE, optimalConsensusSet] = onePointRANSAC( ...
-    x1, x2, K, errThreshold, iterations)
+function [optimalPose, optimalE, optimalConsensusSet,i] = onePointRANSAC( ...
+    x1, x2, K, epsilon, errThreshold, iterations)
 
     m = size(x1,2);
     s = 1; % Number of points needed to reach a solution
@@ -34,7 +34,7 @@ function [optimalPose, optimalE, optimalConsensusSet] = onePointRANSAC( ...
         currInliers = find(sampsonDist < (errThreshold));
 
         % Save the pose estimate with the most inliers:
-        if length(currInliers) > 100
+        if length(currInliers) > s
             
             % Randomly select s matching pair(s)
             n = size(currInliers,2);
@@ -58,11 +58,16 @@ function [optimalPose, optimalE, optimalConsensusSet] = onePointRANSAC( ...
             % Check inliers of this new refined model:
             sampsonDist = sampsonDistance(x1,x2, refined_F_est);
             refinedInliers = find(sampsonDist < (errThreshold));
-            
+    
             if length(refinedInliers) > length(optimalConsensusSet)
                 optimalPose = refined_P;
                 optimalE = refined_F_est;
                 optimalConsensusSet = refinedInliers;
+            end
+            % if number of inliers does not change - end loop
+            if (length(refinedInliers) == length(optimalConsensusSet)) && ...
+                    length(optimalConsensusSet) > epsilon*m
+                break
             end
         end
     end 

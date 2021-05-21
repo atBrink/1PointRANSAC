@@ -31,14 +31,16 @@ function plotAngles(rotAngles, GT, timestamps,R)
     end
     %}
     for i = 2:m
-        angles1 = rotAngles{1,i};
-        angles2 = rotAngles{2,i};
-        yaw(1,i) = angles1(1);
-        yaw(2,i) = angles2(1);
-        pitch(1,i) = angles1(2);
-        pitch(2,i) = angles2(2);
-        roll(1,i) = angles1(3);
-        roll(2,i) = angles2(3);
+        for j =1:n
+            angles = rotAngles{j,i}
+        %angles2 = rotAngles{2,i};
+            yaw(j,i) = angles(1);
+        %yaw(2,i) = angles2(1);
+            pitch(j,i) = angles(2);
+        %pitch(2,i) = angles2(2);
+            roll(j,i) = angles(3);
+        %roll(2,i) = angles2(3);
+        end
     end
     figure(name='Comparison of rotational angles');
     title 'Comparison of Angles between the different algorithms and the ground truth'

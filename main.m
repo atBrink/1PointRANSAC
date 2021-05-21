@@ -33,7 +33,7 @@ nbrOfImages = length(images);
 
 
 errThreshold = 0.0001;
-iterations1 = 10;
+iterations1 = 200;%10
 iterations2 = 20;
 iterations5 = 200;
 iterations8 = 2000;
@@ -51,6 +51,10 @@ optimalConsensusSet = cell(2,nbrOfImages);
 rotAngles=cell(2,nbrOfImages);
 rotAnglesb=cell(2,nbrOfImages);
 rotAnglesc=cell(2,nbrOfImages);
+epsilon = 0.80;
+%epsilon = [0,0];
+ransaciterations = zeros(2,nbrOfImages);
+timeRANSAC = zeros(2,nbrOfImages);
 for k = 2:nbrOfImages-1
     im1 = sprintf('KITTI-%s/%s',sequence, images(k-1).name);
     im2 =  sprintf('KITTI-%s/%s',sequence, images(k).name);
@@ -73,24 +77,32 @@ for k = 2:nbrOfImages-1
     x{2,k} = x2;
 
     %%% 1p
-    %tic
-    [P1,E{1,k}, optimalConsensusSet{1,k}] = onePointRANSAC(x1, x2, K, ...
-        errThreshold, iterations1);
+    tic
+    [P1,E{1,k}, optimalConsensusSet{1,k},ransaciterations(1,k)] = onePointRANSAC(x1, x2, K, ...
+        epsilon, errThreshold, iterations1);
+    timeRANSAC(1,k) = toc;
+    %if length(optimalConsensusSet{1,k}) > epsilon(1)
+    %    epsilon(1) = length(optimalConsensusSet{1,k});
+    %end
     Pbackup{1,k} = P1;
     P{1,k} = P{1,k-1}+P1;
-    %timeRANSAC1 = toc
+    
     %tic
     %%% 2p
     %[P2p,E2, optimalConsensusSet2] = twoPointRANSAC(x1, x2, K, ...
     %    errThreshold, iterations2);
     %timeRANSAC2 = toc
     %%% 5p
-    %tic
-    [P5,E{2,k}, optimalConsensusSet{2,k}] = fivePointRANSAC(x1, x2, K, ...
-        errThreshold, iterations5);
+    tic
+    [P5,E{2,k}, optimalConsensusSet{2,k},ransaciterations(2,k)] = fivePointRANSAC(x1, x2, K, ...
+        epsilon, errThreshold, iterations5);
+    timeRANSAC(2,k) = toc;
     Pbackup{2,k} = P5;
     P{2,k} = P{2,k-1}+P5;
-    %timeRANSAC5 = toc
+    %if length(optimalConsensusSet{2,k}) > epsilon(2)
+    %    epsilon(2) = length(optimalConsensusSet{2,k});
+    %end
+    %
     %[P8p, set8p, X8p, dd8] = eightPointRANSAC(x1, x2, K, ...
      %errThreshold, iterations8);
      
@@ -102,7 +114,7 @@ for k = 2:nbrOfImages-1
     %rotAnglesc{1,k} = [yaw; pitch; roll];
     %[yaw, pitch, roll] = extractEulerAngles(R{2,k});
     %rotAnglesc{2,k} = [yaw; pitch; roll];
-    
+
     rotAngles{1,k} = rotm2eul(R{1,k});
     rotAngles{2,k} = rotm2eul(R{2,k});
     %Rb{1,k} = R{1,k-1}+P{1,k}(:,1:3);
@@ -113,6 +125,7 @@ for k = 2:nbrOfImages-1
     %rotAnglesb{2,k} = rotm2eul(R{2,k}+R{2,k-1});
 end
 %%
+close all
 timeStamps = load(sprintf('KITTI-%s/times.txt',sequence))';
 GT = load(sprintf('KITTI-%s/%s.txt',sequence,sequence));
 plotAngles(rotAngles,GT, timeStamps,R)
@@ -120,6 +133,8 @@ plotAngles(rotAngles,GT, timeStamps,R)
 %plotAngles(rotAnglesc,GT, timeStamps,R)
 %plotAngles(rotAnglesd,GT, timeStamps,R)
 plotInliers(x, optimalConsensusSet,timeStamps)
+plotRansacIterationHist(ransaciterations)
+plotTime(timeRANSAC)
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check with plots

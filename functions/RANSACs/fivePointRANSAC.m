@@ -1,5 +1,5 @@
-function [optimalPose, optimalE, optimalConsensusSet] = fivePointRANSAC(...
-    x1, x2, K, errThreshold, iterations)
+function [optimalPose, optimalE, optimalConsensusSet,i] = fivePointRANSAC(...
+    x1, x2, K, epsilon, errThreshold, iterations)
 
     m = size(x1,2);
     s = 5; % Number of points needed to reach a solution
@@ -53,6 +53,11 @@ function [optimalPose, optimalE, optimalConsensusSet] = fivePointRANSAC(...
                 optimalPose = refinedP_est;
                 optimalE = refined_E_est;
                 optimalConsensusSet = refinedInliers;
+            end
+            % if number of inliers does not change - end loop
+            if (length(refinedInliers) == length(optimalConsensusSet)) && ...
+                    length(optimalConsensusSet) > epsilon*m
+                break
             end
         end
     end
