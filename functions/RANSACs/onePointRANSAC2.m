@@ -8,7 +8,11 @@ function [optimalPose, optimalE, optimalConsensusSet,i] = onePointRANSAC( ...
     optimalPose = zeros(3,4);
     optimalConsensusSet = 0;
     prevInliers = 0;
-    for i = 1:iterations
+    k=0;
+    i = 0;
+    while k < 8
+        k = k+1;
+        i = i+1;
         % Randomly select s matching pair(s)
         randind = randperm(m,s);
         keyPointFrame1 = x1(:,randind);
@@ -63,15 +67,16 @@ function [optimalPose, optimalE, optimalConsensusSet,i] = onePointRANSAC( ...
                 optimalPose = refined_P;
                 optimalE = refined_F_est;
                 optimalConsensusSet = refinedInliers;
+                k = 0;
             end
             % if number of inliers does not change - end loop
-            if (length(prevInliers) > 100 )&& ...
-                    length(refinedInliers) == length(prevInliers)
+           % if (length(prevInliers) > 100 )&& ...
+            %        length(refinedInliers) == length(prevInliers)
                     %length(optimalConsensusSet) > epsilon*m
-                break
-            elseif length(refinedInliers) > prevInliers
-                prevInliers = refinedInliers;
-            end
+            %    break
+            %elseif length(refinedInliers) > prevInliers
+            %    prevInliers = refinedInliers;
+            %end
         end
         
     end 

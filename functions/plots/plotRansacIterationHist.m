@@ -1,18 +1,17 @@
 function plotRansacIterationHist(ransacIterations)
 %PLOTRANSACITERATIONHIST Summary of this function goes here
 %   Detailed explanation goes here
-    m = size(ransacIterations,1);
     
     figure
     title 'number of RANSAC iterations needed to find enough inliers'
     hold on
-    for i = 1:m
-        h=histogram(ransacIterations(i,:));
-        %if i~=1
-        h.NumBins = 100;
-        %end
-    end
 
+    h1=histogram(ransacIterations(1,:));
+    h1.NumBins = 10;
+
+    h2=histogram(ransacIterations(2,:));
+    h2.NumBins = 10;
+    
     xlabel '# iterations'
     ylabel 'incidenses of # inliers'
     legend('1p RANSAC','5p RANSAC');

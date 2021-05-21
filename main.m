@@ -32,7 +32,7 @@ images = dir(sprintf('KITTI-%s/*.png',sequence));
 nbrOfImages = length(images);
 
 
-errThreshold = 0.0001;
+errThreshold = 0.001;
 iterations1 = 200;%10
 iterations2 = 20;
 iterations5 = 200;
@@ -51,8 +51,7 @@ optimalConsensusSet = cell(2,nbrOfImages);
 rotAngles=cell(2,nbrOfImages);
 rotAnglesb=cell(2,nbrOfImages);
 rotAnglesc=cell(2,nbrOfImages);
-epsilon = 0.80;
-%epsilon = [0,0];
+epsilon = 0.90;
 ransaciterations = zeros(2,nbrOfImages);
 timeRANSAC = zeros(2,nbrOfImages);
 for k = 2:nbrOfImages-1
@@ -78,7 +77,7 @@ for k = 2:nbrOfImages-1
 
     %%% 1p
     tic
-    [P1,E{1,k}, optimalConsensusSet{1,k},ransaciterations(1,k)] = onePointRANSAC(x1, x2, K, ...
+    [P1,E{1,k}, optimalConsensusSet{1,k},ransaciterations(1,k)] = onePointRANSAC2(x1, x2, K, ...
         epsilon, errThreshold, iterations1);
     timeRANSAC(1,k) = toc;
     %if length(optimalConsensusSet{1,k}) > epsilon(1)
@@ -94,7 +93,7 @@ for k = 2:nbrOfImages-1
     %timeRANSAC2 = toc
     %%% 5p
     tic
-    [P5,E{2,k}, optimalConsensusSet{2,k},ransaciterations(2,k)] = fivePointRANSAC(x1, x2, K, ...
+    [P5,E{2,k}, optimalConsensusSet{2,k},ransaciterations(2,k)] = fivePointRANSAC2(x1, x2, K, ...
         epsilon, errThreshold, iterations5);
     timeRANSAC(2,k) = toc;
     Pbackup{2,k} = P5;
